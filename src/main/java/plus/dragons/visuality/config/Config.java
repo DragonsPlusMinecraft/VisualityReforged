@@ -1,6 +1,6 @@
 package plus.dragons.visuality.config;
 
-import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
+import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class Config {
@@ -53,11 +53,15 @@ public class Config {
 		SPEC = builder.build();
 	}
 	
-	public static void registerClientResourceListener(RegisterClientReloadListenersEvent event) {
-	    event.registerReloadListener(ENTITY_HIT_PARTICLES = new EntityHitParticleConfig());
-	    event.registerReloadListener(ENTITY_ARMOR_PARTICLES = new EntityArmorParticleConfig());
-	    event.registerReloadListener(BLOCK_AMBIENT_PARTICLES = new BlockAmbientParticleConfig());
-	    event.registerReloadListener(BLOCK_STEP_PARTICLES = new BlockStepParticleConfig());
+	public static void registerClientResourceListener(AddClientReloadListenersEvent event) {
+		ENTITY_HIT_PARTICLES = new EntityHitParticleConfig();
+		ENTITY_ARMOR_PARTICLES = new EntityArmorParticleConfig();
+		BLOCK_AMBIENT_PARTICLES = new BlockAmbientParticleConfig();
+		BLOCK_STEP_PARTICLES = new BlockStepParticleConfig();
+	    event.addListener(ENTITY_HIT_PARTICLES.id, ENTITY_HIT_PARTICLES);
+		event.addListener(ENTITY_HIT_PARTICLES.id, ENTITY_ARMOR_PARTICLES);
+		event.addListener(ENTITY_HIT_PARTICLES.id, BLOCK_AMBIENT_PARTICLES);
+		event.addListener(ENTITY_HIT_PARTICLES.id, BLOCK_STEP_PARTICLES);
 	}
 	
 }
