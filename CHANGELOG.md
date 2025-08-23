@@ -1,3 +1,6 @@
-## Visuality: Reforged 2.0.7
+## Visuality: Reforged 2.1.0
 
+### Bugfix:
+* Fix NeoForge breaking change crash
+* Fix a bug that in case some entities do not have attack_damage attribute and still can attack
 
