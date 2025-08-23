@@ -3,7 +3,7 @@ plugins {
     id 'net.neoforged.gradle.userdev' version "${neogradle_version}"
     id 'net.neoforged.gradle.mixin' version "${neogradle_version}"
     id 'maven-publish'
-    id "me.modmuss50.mod-publish-plugin" version "0.4.0"
+    id "me.modmuss50.mod-publish-plugin" version "0.8.4"
 }
 
 base{
@@ -14,6 +14,14 @@ base{
 
 repositories {
     mavenLocal()
+    maven { url "https://www.cursemaven.com" }
+}
+
+dependencies {
+    runtimeOnly("curse.maven:immersive-messages-api-1109713:6480770")
+    runtimeOnly("curse.maven:txnilib-1104882:6533725")
+    compileOnly("curse.maven:immersive-damage-indicators-1255453:6480777")
+    runtimeOnly("curse.maven:immersive-damage-indicators-1255453:6480777")
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
@@ -114,7 +122,7 @@ processJar(jar)
 
 publishMods {
     file = tasks.jar.archiveFile
-    changelog = new File("changelog/${mod_version}.md").text
+    changelog = project.file("CHANGELOG.md").text
     version = mod_version
     type = STABLE
     displayName = "[NeoForge]Visuality: Reforged ${mod_version} for ${minecraft_version}"

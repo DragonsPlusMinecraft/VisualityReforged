@@ -3,11 +3,13 @@
   "minVersion": "0.8",
   "package": "plus.dragons.visuality.mixin",
   "compatibilityLevel": "JAVA_17",
+  "plugin": "plus.dragons.visuality.mixin.VisualityMixinPlugin",
   "client": [
     "BlockMixin",
     "ParticleEngineMixin",
     "SlimeMixin",
-    "WaterFluidMixin"
+    "WaterFluidMixin",
+    "immersivedamageindicators.DamageParticleFactoryMixin"
   ],
   "injectors": {
     "defaultRequire": 1
