@@ -80,8 +80,10 @@ public class EntityHitParticleConfig extends ReloadableJsonConfig {
         }
     }
     
-    private double getAttackDamage(LivingEntity attacker) {
-        return attacker.getMainHandItem().getAttributeModifiers().compute(attacker.getAttributeBaseValue(Attributes.ATTACK_DAMAGE),EquipmentSlot.MAINHAND);
+    private double getAttackDamage(LivingEntity attacker) { // In case some entities do not have attack_damage attribute and still can attack
+        if(attacker.getAttribute(Attributes.ATTACK_DAMAGE)!=null)
+            return attacker.getMainHandItem().getAttributeModifiers().compute(attacker.getAttributeBaseValue(Attributes.ATTACK_DAMAGE),EquipmentSlot.MAINHAND);
+        else return 1;
     }
     
     @Override
