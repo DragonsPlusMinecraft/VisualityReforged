@@ -23,9 +23,9 @@ public abstract class BlockMixin extends BlockBehaviour implements ItemLike {
     }
 
     @Inject(method = "fallOn", at = @At("TAIL"))
-    private void fallOn$spawnParticles(Level level, BlockState state, BlockPos pos, Entity entity, float f, CallbackInfo ci) {
+    private void fallOn$spawnParticles(Level level, BlockState state, BlockPos pos, Entity entity, double fallDistance, CallbackInfo ci) {
         if (level.isClientSide) {
-            int amount = Mth.log2(Mth.ceil(f)) + 1;
+            int amount = Mth.log2(Mth.ceil(fallDistance)) + 1;
             Config.BLOCK_STEP_PARTICLES.spawnParticles(amount, level, state, pos, entity);
         }
     }

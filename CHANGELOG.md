@@ -1,4 +1,4 @@
-## Visuality: Reforged 2.1.0
+## Visuality: Reforged 2.1.1
 
 ### Bugfix:
 * Fix NeoForge breaking change crash

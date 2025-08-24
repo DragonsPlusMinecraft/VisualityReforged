@@ -65,7 +65,7 @@ public class EntityHitParticleConfig extends ReloadableJsonConfig {
         else if (sourceEntity instanceof ThrownTrident)
             amount = 8.0;
         else if (sourceEntity instanceof AbstractArrow)
-            amount = ((AbstractArrow) sourceEntity).getBaseDamage() * 2;
+            amount = ((AbstractArrow) sourceEntity).baseDamage * 2;
         
         if (amount <= 0)
             return;
