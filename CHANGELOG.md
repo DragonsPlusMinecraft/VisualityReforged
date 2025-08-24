@@ -1,6 +1,5 @@
-## Visuality: Reforged 2.1.0
+## Visuality: Reforged 2.1.1
 
 ### Bugfix:
-* Fix NeoForge breaking change crash
-* Fix a bug that in case some entities do not have attack_damage attribute and still can attack
+* Fix Particle Registration Issue
 

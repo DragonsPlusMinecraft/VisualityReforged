@@ -59,9 +59,9 @@ public class Config {
 		BLOCK_AMBIENT_PARTICLES = new BlockAmbientParticleConfig();
 		BLOCK_STEP_PARTICLES = new BlockStepParticleConfig();
 	    event.addListener(ENTITY_HIT_PARTICLES.id, ENTITY_HIT_PARTICLES);
-		event.addListener(ENTITY_HIT_PARTICLES.id, ENTITY_ARMOR_PARTICLES);
-		event.addListener(ENTITY_HIT_PARTICLES.id, BLOCK_AMBIENT_PARTICLES);
-		event.addListener(ENTITY_HIT_PARTICLES.id, BLOCK_STEP_PARTICLES);
+		event.addListener(ENTITY_ARMOR_PARTICLES.id, ENTITY_ARMOR_PARTICLES);
+		event.addListener(BLOCK_AMBIENT_PARTICLES.id, BLOCK_AMBIENT_PARTICLES);
+		event.addListener(BLOCK_STEP_PARTICLES.id, BLOCK_STEP_PARTICLES);
 	}
 	
 }
