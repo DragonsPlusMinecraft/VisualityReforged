@@ -10,6 +10,7 @@ public class Config {
 	public static BlockStepParticleConfig BLOCK_STEP_PARTICLES;
 	
     public static final ModConfigSpec.BooleanValue SLIME_ENABLED;
+    public static final ModConfigSpec.IntValue SLIME_COLOR;
     public static final ModConfigSpec.BooleanValue CHARGE_ENABLED;
 
     public static final ModConfigSpec.BooleanValue WATER_CIRCLE_ENABLED;
@@ -26,6 +27,10 @@ public class Config {
 			.translation("config.visuality.option.slime")
 			.comment("Slime Blobs Enabled")
 			.define("enabled", true);
+		SLIME_COLOR = builder
+			.translation("config.visuality.option.slime.color")
+			.comment("Slime blob RGB color (0x000000 - 0xFFFFFF)")
+			.defineInRange("color", 0x88FF79, 0x000000, 0xFFFFFF);
 		builder.pop();
 		
 		builder.push("charge");

@@ -32,10 +32,11 @@ public abstract class SlimeMixin extends Mob {
         if (Config.SLIME_ENABLED.get() && this.getType() == EntityType.SLIME) {
             if(this.level().isClientSide()){
                 int size = getSize();
+                int color = Config.SLIME_COLOR.get();
                 ParticleOptions particle = switch (size) {
-                    case 1 -> VisualityParticles.SMALL_SLIME_BLOB.get().withColor(0x88FF79);
-                    case 2 -> VisualityParticles.MEDIUM_SLIME_BLOB.get().withColor(0x88FF79);
-                    default -> VisualityParticles.BIG_SLIME_BLOB.get().withColorAndScale(0x88FF79, 2);
+                    case 1 -> VisualityParticles.SMALL_SLIME_BLOB.get().withColor(color);
+                    case 2 -> VisualityParticles.MEDIUM_SLIME_BLOB.get().withColor(color);
+                    default -> VisualityParticles.BIG_SLIME_BLOB.get().withColorAndScale(color, 2);
                 };
                 int i = getSize();
                 for (int j = 0; j < i * 8; ++j) {

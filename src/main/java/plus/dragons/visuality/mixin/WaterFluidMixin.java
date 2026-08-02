@@ -1,9 +1,9 @@
 package plus.dragons.visuality.mixin;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.WaterFluid;
 import org.spongepowered.asm.mixin.Mixin;
@@ -25,8 +25,7 @@ public class WaterFluidMixin {
         if (random.nextInt(256) < density) {
             BlockPos above = pos.above();
             if (state.isSource() && level.isRainingAt(above)) {
-                Biome biome = level.getBiome(pos).value();
-                int color = WATER_CIRCLE_COLORED.get() ? biome.getWaterColor() : -1;
+                int color = WATER_CIRCLE_COLORED.get() ? BiomeColors.getAverageWaterColor(level, pos) : -1;
                 level.addParticle(VisualityParticles.WATER_CIRCLE.get().withColor(color),
                     above.getX() + level.random.nextDouble(),
                     above.getY() - 0.1,
