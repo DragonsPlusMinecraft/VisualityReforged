@@ -4,6 +4,18 @@
 
 * Active maintenance is now limited to Minecraft 1.21.1 and 1.21.8 on NeoForge. All other branches are end-of-life.
 
+### Added
+
+* Add a configurable RGB color for slime blob particles under `slime.color` in the client config.
+* Add `#namespace:tag` item selectors to entity armor particle-emitter entries while keeping existing item ID entries compatible.
+* Add distinct cold and warm feather hit particles for the matching chicken variants on Minecraft 1.21.8.
+* Add German, Argentinian Spanish, European Spanish, French, and Polish translations, and translate the new slime color option.
+
+### Changed
+
+* Blend rain water-circle colors using Minecraft's client biome color blending instead of using a single raw biome color.
+* Update the emerald particle texture from Fabric Visuality and refresh the normal chicken feather texture on Minecraft 1.21.8.
+
 ### Fixed
 
 * Prevent non-living client entities such as Ender Dragon parts and interaction entities from entering the living-entity hit-particle path (#32, #34; 1.21.8).
