@@ -39,6 +39,7 @@ public abstract class ReloadableJsonConfig extends SimplePreparableReloadListene
     protected final Logger logger;
     @Nullable
     private JsonObject config;
+    private boolean configLoadFailed;
     
     protected ReloadableJsonConfig(ResourceLocation id) {
         this.id = ResourceLocation.fromNamespaceAndPath(id.getNamespace(), id.getPath() + ".json");
@@ -51,6 +52,7 @@ public abstract class ReloadableJsonConfig extends SimplePreparableReloadListene
         profiler.startTick();
         profiler.push("config");
         profiler.push("parse");
+        configLoadFailed = false;
         config = loadConfig();
         profiler.pop();
         profiler.pop();
@@ -82,7 +84,22 @@ public abstract class ReloadableJsonConfig extends SimplePreparableReloadListene
     
     protected void apply(List<Pair<String, JsonObject>> list, ResourceManager resourceManager, ProfilerFiller profiler) {
         profiler.startTick();
-        config = config == null ? serializeConfig() : apply(config, true, path.toString(), profiler);
+        resetRuntimeData();
+        JsonObject configToSave = null;
+        if (configLoadFailed) {
+            logger.error("Keeping invalid config at {} unchanged; fix the error above and reload resources", path);
+        } else if (config == null) {
+            configToSave = serializeConfig();
+        } else {
+            try {
+                JsonObject invalidConfig = apply(config, true, path.toString(), profiler);
+                if (invalidConfig != null) {
+                    logger.error("Keeping invalid config at {} unchanged; fix the reported entries and reload resources", path);
+                }
+            } catch (RuntimeException exception) {
+                logger.error("Failed to apply config from {}; the file has been left unchanged", path, exception);
+            }
+        }
         for (var entry : list) {
             String name = entry.getFirst();
             JsonObject object = entry.getSecond();
@@ -90,15 +107,18 @@ public abstract class ReloadableJsonConfig extends SimplePreparableReloadListene
                 logger.debug("Skipping loading {} from {} as it's conditions were not met", id, name);
                 continue;
             }
-            apply(object, false, name, profiler);
+            try {
+                apply(object, false, name, profiler);
+            } catch (RuntimeException exception) {
+                logger.error("Failed to apply {} from resource pack; skipping it", name, exception);
+            }
         }
-        if (config != null) {
+        if (configToSave != null) {
             profiler.push("save");
-            saveConfig(config);
-            //config = null;
+            saveConfig(configToSave);
             profiler.pop();
         }
-        profiler.pop();
+        config = null;
         profiler.endTick();
     }
 
@@ -107,7 +127,7 @@ public abstract class ReloadableJsonConfig extends SimplePreparableReloadListene
             var condition = getOrThrow(ICondition.CODEC.parse(JsonOps.INSTANCE, json.getAsJsonObject(item)), JsonParseException::new);
             return condition.test(context);
         }
-        return false;
+        return true;
     }
 
     public static <T, E extends Exception> T getOrThrow(DataResult<T> dataResult, Function<String, E> exThrower) throws E {
@@ -124,7 +144,7 @@ public abstract class ReloadableJsonConfig extends SimplePreparableReloadListene
      * @param input the JsonObject read from file in {@link ReloadableJsonConfig#loadConfig()}
      * @param config if the JsonObject is from config
      * @param source a String to identify the source of the JsonObject
-     * @return the corrected JsonElement to save to file, or null if it doesn't need correction
+     * @return a non-null value if the file is invalid, or null if it was applied successfully
      */
     @Nullable
     protected abstract JsonObject apply(JsonObject input, boolean config, String source, ProfilerFiller profiler);
@@ -134,10 +154,16 @@ public abstract class ReloadableJsonConfig extends SimplePreparableReloadListene
      * @return the serialized config data
      */
     protected abstract JsonObject serializeConfig();
+
+    /**
+     * Rebuild runtime lookup data from the last successfully applied local config.
+     * Resource-pack additions are reapplied after this method returns.
+     */
+    protected void resetRuntimeData() {}
     
     /**
      * Load the config JsonElement from file
-     * @return the raw JsonElement, or null if failed to load
+     * @return the raw JsonElement, or null if the file does not exist or failed to load
      */
     @Nullable
     protected JsonObject loadConfig() {
@@ -145,9 +171,14 @@ public abstract class ReloadableJsonConfig extends SimplePreparableReloadListene
             return null;
         }
         try (BufferedReader reader = Files.newBufferedReader(path)) {
-            return GSON.fromJson(reader, JsonObject.class);
+            JsonObject result = GSON.fromJson(reader, JsonObject.class);
+            if (result == null) {
+                throw new JsonParseException("Config is empty or contains JSON null");
+            }
+            return result;
         } catch (Throwable throwable) {
-            logger.warn("Failed to read config from {}", path, throwable);
+            configLoadFailed = true;
+            logger.error("Failed to read config from {}; the file will not be overwritten", path, throwable);
             return null;
         }
     }
@@ -159,9 +190,9 @@ public abstract class ReloadableJsonConfig extends SimplePreparableReloadListene
     private void saveConfig(JsonObject output) {
         try {
             Files.createDirectories(path.getParent());
-            BufferedWriter writer = Files.newBufferedWriter(path);
-            GSON.toJson(output, writer);
-            writer.close();
+            try (BufferedWriter writer = Files.newBufferedWriter(path)) {
+                GSON.toJson(output, writer);
+            }
             logger.info("Saved config to {}", path);
         } catch (Throwable throwable) {
             logger.error("Failed to save config to {}", path, throwable);

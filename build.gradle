@@ -1,8 +1,8 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '2.0.107'
-    id "me.modmuss50.mod-publish-plugin" version "0.8.4"
+    id 'net.neoforged.moddev' version '2.0.143'
+    id "me.modmuss50.mod-publish-plugin" version "2.1.1"
 }
 
 
@@ -136,14 +136,14 @@ neoForge.ideSyncTask generateModMetadata
 publishing {
     publications {
         register('mavenJava', MavenPublication) {
-            artifactId = mod_artifact_id + "-" + minecraft_version
+            artifactId = "${mod_id}-${minecraft_version}"
             from components.java
         }
     }
     repositories {
         maven {
-            name "DragonsPlus"
-            url "https://maven.dragons.plus/releases"
+            name = "DragonsPlus"
+            url = "https://maven.dragons.plus/releases"
             credentials(PasswordCredentials)
             authentication {
                 basic(BasicAuthentication)
@@ -163,16 +163,21 @@ publishMods {
     type = STABLE
     displayName = "[NeoForge]Visuality: Reforged ${mod_version} for ${minecraft_version}"
     modLoaders.add("neoforge")
+    dryRun = providers.gradleProperty("publishDryRun").map { it.toBoolean() }.orElse(false)
 
     curseforge {
         projectId = "704256"
         accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
         minecraftVersions.add(minecraft_version)
+        javaVersions.add(JavaVersion.VERSION_21)
+        client = true
+        server = false
     }
 
     modrinth {
         projectId = "z13R7Et1"
         accessToken = providers.environmentVariable("MODRINTH_TOKEN")
         minecraftVersions.add(minecraft_version)
+        environment = CLIENT_ONLY
     }
 }

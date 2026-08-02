@@ -18,11 +18,10 @@ public class EntityMixin {
 
     @Inject(method = "hurtClient", at = @At("HEAD"))
     private void handleParticle(DamageSource damageSource, CallbackInfoReturnable<Boolean> cir) {
-        var living = (LivingEntity) (Object) this;
-        if(living.level().isClientSide){
+        Object entity = this;
+        if (entity instanceof LivingEntity living && living.level().isClientSide) {
             double insignificantAmount = random.nextDouble() + random.nextInt(6);
             Config.ENTITY_HIT_PARTICLES.spawnParticles(living,damageSource,insignificantAmount);
-            Config.ENTITY_ARMOR_PARTICLES.spawnParticles(living);
         }
     }
 }
