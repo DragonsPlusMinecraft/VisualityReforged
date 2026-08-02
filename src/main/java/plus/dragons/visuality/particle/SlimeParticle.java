@@ -46,7 +46,7 @@ public class SlimeParticle extends SingleQuadParticle {
         @Override
         public Particle createParticle(ColorScaleParticleType.Options options, ClientLevel world, double x, double y, double z, double velX, double velY, double velZ, RandomSource random) {
             SlimeParticle particle = new SlimeParticle(world, x, y, z, options.r, options.g, options.b, options.scale, sprites);
-            particle.setSprite(sprites.get(world.random));
+            particle.setSprite(sprites.get(world.getRandom()));
             return particle;
         }
         

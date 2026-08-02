@@ -62,8 +62,8 @@ public class BlockStepParticleConfig extends ReloadableJsonConfig {
         var particle = particles.get(block);
         double y = entity.getY() + 0.0625;
         for (int i = 0; i < amount; ++i) {
-            double x = pos.getX() + level.random.nextDouble();
-            double z = pos.getZ() + level.random.nextDouble();
+            double x = pos.getX() + level.getRandom().nextDouble();
+            double z = pos.getZ() + level.getRandom().nextDouble();
             particle.spawn(level, x, y, z);
         }
     }

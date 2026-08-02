@@ -2,7 +2,7 @@ package plus.dragons.visuality.particle;
 
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
-import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.RandomSource;
 import plus.dragons.visuality.particle.type.ColorParticleType;
 
@@ -36,8 +36,8 @@ public class SparkleParticle extends SingleQuadParticle {
     }
 
     @Override
-    public int getLightColor(float tint) {
-        return LightTexture.FULL_BRIGHT;
+    public int getLightCoords(float tint) {
+        return LightCoordsUtil.FULL_BRIGHT;
     }
 
     public record Provider(SpriteSet sprites) implements ParticleProvider<ColorParticleType.Options> {
