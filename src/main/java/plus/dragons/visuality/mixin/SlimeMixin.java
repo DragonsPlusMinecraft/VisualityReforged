@@ -2,9 +2,10 @@ package plus.dragons.visuality.mixin;
 
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.monster.Slime;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.monster.cubemob.AbstractCubeMob;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -14,20 +15,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import plus.dragons.visuality.config.Config;
 import plus.dragons.visuality.registry.VisualityParticles;
 
-@Mixin(Slime.class)
-public abstract class SlimeMixin extends Mob {
+@Mixin(AbstractCubeMob.class)
+public abstract class SlimeMixin extends AgeableMob {
     
     @Shadow public abstract int getSize();
     
-    @Shadow public abstract EntityType<? extends Slime> getType();
-    
-    private SlimeMixin(EntityType<? extends Mob> pEntityType, Level pLevel) {
+    private SlimeMixin(EntityType<? extends AgeableMob> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
     }
     
     @Inject(method = "spawnCustomParticles", at = @At("RETURN"), cancellable = true, remap = false)
     private void getParticleType$modify(CallbackInfoReturnable<Boolean> cir) {
-        if (Config.SLIME_ENABLED.get() && this.getType() == EntityType.SLIME) {
+        if (Config.SLIME_ENABLED.get() && this.getType() == EntityTypes.SLIME) {
             if(this.level().isClientSide()){
                 int size = getSize();
                 int color = Config.SLIME_COLOR.get();

@@ -15,6 +15,7 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -202,16 +203,16 @@ public class EntityHitParticleConfig extends ReloadableJsonConfig {
     private static List<Entry> createDefaultEntries() {
         List<Entry> entries = new ArrayList<>();
         entries.add(Entry.of(VisualityParticles.BONE.get(),
-            EntityType.SKELETON,
-            EntityType.SKELETON_HORSE,
-            EntityType.STRAY));
+            EntityTypes.SKELETON,
+            EntityTypes.SKELETON_HORSE,
+            EntityTypes.STRAY));
         entries.add(Entry.of(VisualityParticles.WITHER_BONE.get(),
-            EntityType.WITHER_SKELETON));
+            EntityTypes.WITHER_SKELETON));
         entries.add(Entry.of(VisualityParticles.FEATHER.get(),
-            EntityType.CHICKEN));
+            EntityTypes.CHICKEN));
         entries.add(Entry.of(VisualityParticles.EMERALD.get(),
-            EntityType.VILLAGER,
-            EntityType.WANDERING_TRADER
+            EntityTypes.VILLAGER,
+            EntityTypes.WANDERING_TRADER
         ));
         return entries;
     }
