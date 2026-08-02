@@ -97,8 +97,6 @@ tasks.withType(ProcessResources).configureEach {
 
 void processJar(Jar jarTask) {
     jarTask.configure {
-        from "LICENSE_FABRIC"
-        from "LICENSE_FORGE"
         manifest {
             attributes([
                 "Specification-Title"     : "${mod_name}",
@@ -111,6 +109,11 @@ void processJar(Jar jarTask) {
             ])
         }
     }
+}
+
+tasks.withType(Jar).configureEach {
+    from rootProject.file("LICENSE_FABRIC")
+    from rootProject.file("LICENSE_FORGE")
 }
 
 processJar(jar)
