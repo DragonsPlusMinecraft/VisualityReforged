@@ -18,6 +18,8 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.animal.Chicken;
+import net.minecraft.world.entity.animal.ChickenVariants;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.ThrownTrident;
 import org.jetbrains.annotations.Nullable;
@@ -77,13 +79,32 @@ public class EntityHitParticleConfig extends ReloadableJsonConfig {
             return;
     
         int count = Mth.clamp(Mth.ceil(amount), minAmount, maxAmount);
-        ParticleWithVelocity particle = particles.get(entity.getType());
+        ParticleWithVelocity particle = resolveParticle(entity, particles.get(entity.getType()));
         double x = entity.getX();
         double y = entity.getY(0.5);
         double z = entity.getZ();
         for (int i = 0; i < count; ++i) {
             particle.spawn(entity.level(), x, y, z);
         }
+    }
+
+    private ParticleWithVelocity resolveParticle(LivingEntity entity, ParticleWithVelocity configured) {
+        if (!(entity instanceof Chicken chicken) || configured.options() != VisualityParticles.FEATHER.get())
+            return configured;
+
+        var variant = chicken.getVariant().unwrapKey();
+        if (variant.isEmpty())
+            return configured;
+
+        ParticleOptions options = configured.options();
+        if (variant.get().equals(ChickenVariants.COLD))
+            options = VisualityParticles.COLD_FEATHER.get();
+        else if (variant.get().equals(ChickenVariants.WARM))
+            options = VisualityParticles.WARM_FEATHER.get();
+
+        return options == configured.options()
+            ? configured
+            : new ParticleWithVelocity(options, configured.velocity());
     }
     
     private double getAttackDamage(LivingEntity attacker) { // In case some entities do not have attack_damage attribute and still can attack

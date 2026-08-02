@@ -18,6 +18,8 @@ public class VisualityParticles {
     public static final DeferredHolder<ParticleType<?>,SimpleParticleType> BONE = register("bone");
     public static final DeferredHolder<ParticleType<?>,SimpleParticleType> WITHER_BONE = register("wither_bone");
     public static final DeferredHolder<ParticleType<?>,SimpleParticleType> FEATHER = register("feather");
+    public static final DeferredHolder<ParticleType<?>,SimpleParticleType> COLD_FEATHER = register("cold_feather");
+    public static final DeferredHolder<ParticleType<?>,SimpleParticleType> WARM_FEATHER = register("warm_feather");
     public static final DeferredHolder<ParticleType<?>,ColorScaleParticleType> SMALL_SLIME_BLOB = register("small_slime_blob", ColorScaleParticleType::new);
     public static final DeferredHolder<ParticleType<?>,ColorScaleParticleType> MEDIUM_SLIME_BLOB = register("medium_slime_blob", ColorScaleParticleType::new);
     public static final DeferredHolder<ParticleType<?>,ColorScaleParticleType> BIG_SLIME_BLOB = register("big_slime_blob", ColorScaleParticleType::new);
@@ -42,6 +44,8 @@ public class VisualityParticles {
         engine.registerVisuality(BONE, SolidFallingParticle.Provider::new);
         engine.registerVisuality(WITHER_BONE, SolidFallingParticle.Provider::new);
         engine.registerVisuality(FEATHER, FeatherParticle.Provider::new);
+        engine.registerVisuality(COLD_FEATHER, FeatherParticle.Provider::new);
+        engine.registerVisuality(WARM_FEATHER, FeatherParticle.Provider::new);
         engine.registerVisuality(SMALL_SLIME_BLOB, SlimeParticle.Provider::new);
         engine.registerVisuality(MEDIUM_SLIME_BLOB, SlimeParticle.Provider::new);
         engine.registerVisuality(BIG_SLIME_BLOB, SlimeParticle.Provider::new);
