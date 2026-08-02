@@ -21,10 +21,6 @@ Block ambient emitter entries accept either a block ID such as `minecraft:amethy
 
 Entity armor emitter entries likewise accept either an item ID or an item tag prefixed with `#`. Slime blob color is configured as an RGB integer with the `slime.color` option.
 
-## Supported versions
-
-Active maintenance is limited to the NeoForge `1.21.1` and `1.21.8` branches. All other Minecraft-version branches are end-of-life and will not receive fixes or releases.
-
 ## Feedback
 
 All feature requests should go to [Visuality](https://github.com/PinkGoosik/visuality).
