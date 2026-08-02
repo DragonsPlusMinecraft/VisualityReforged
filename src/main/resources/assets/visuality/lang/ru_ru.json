@@ -3,6 +3,7 @@
     "config.visuality.title": "Настройки Visuality",
     "config.visuality.general": "Общее",
     "config.visuality.option.slime": "Включены слизевые шарики",
+    "config.visuality.option.slime.color": "Цвет слизевых шариков",
     "config.visuality.option.charge": "Частицы зарядов включены",
     "config.visuality.option.sparkle": "Частицы искр включены",
     "config.visuality.option.soul": "Частицы души включены",

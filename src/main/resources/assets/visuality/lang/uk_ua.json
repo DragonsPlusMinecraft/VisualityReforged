@@ -3,6 +3,7 @@
   "config.visuality.title": "Налаштування Visuality",
   "config.visuality.general": "Загальне",
   "config.visuality.option.slime": "Слизневі краплі увімкнені",
+  "config.visuality.option.slime.color": "Колір слизневих крапель",
   "config.visuality.option.charge": "Заряджені частинки увімкнені",
   "config.visuality.option.sparkle": "Іскристі частинки увімкнені",
   "config.visuality.option.soul": "Частинки душі увімкнені",

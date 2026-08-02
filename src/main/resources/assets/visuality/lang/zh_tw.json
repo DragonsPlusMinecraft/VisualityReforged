@@ -3,6 +3,7 @@
   "config.visuality.title": "Visuality 設置",
   "config.visuality.general": "通用",
   "config.visuality.option.slime": "啟用黏液液滴",
+  "config.visuality.option.slime.color": "史萊姆泡泡顏色",
   "config.visuality.option.charge": "啟用充能粒子",
   "config.visuality.option.sparkle": "啟用閃爍粒子",
   "config.visuality.option.soul": "啟用靈魂粒子",

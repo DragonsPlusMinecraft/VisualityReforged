@@ -3,6 +3,7 @@
   "config.visuality.title": "Visuality Config",
   "config.visuality.general": "General",
   "config.visuality.option.slime": "Slime Blobs Enabled",
+  "config.visuality.option.slime.color": "Slime Blobs Color",
   "config.visuality.option.charge": "Charge Particle Enabled",
   "config.visuality.option.sparkle": "Sparkle Particle Enabled",
   "config.visuality.option.soul": "Soul Particle Enabled",

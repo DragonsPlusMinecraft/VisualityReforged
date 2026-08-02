@@ -5,6 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.client.Minecraft;
@@ -13,6 +14,9 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -20,6 +24,7 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -37,7 +42,9 @@ public class EntityArmorParticleConfig extends ReloadableJsonConfig {
     private boolean enabled = true;
     private int interval = 20;
     private List<Entry> entries;
-    private final IdentityHashMap<Item, ParticleWithVelocity> particles = new IdentityHashMap<>();
+    private final IdentityHashMap<Item, Emitter> particles = new IdentityHashMap<>();
+    private final List<TaggedEmitter> taggedParticles = new ArrayList<>();
+    private long nextPriority;
     
     public EntityArmorParticleConfig() {
         super(Visuality.location("particle_emitters/entity_armor"));
@@ -48,11 +55,31 @@ public class EntityArmorParticleConfig extends ReloadableJsonConfig {
     @Override
     protected void resetRuntimeData() {
         particles.clear();
-        for (Entry entry : entries) {
-            for (Item armor : entry.armors) {
-                particles.put(armor, entry.particle);
+        taggedParticles.clear();
+        nextPriority = 0;
+        entries.forEach(this::registerEntry);
+    }
+
+    private void registerEntry(Entry entry) {
+        Emitter emitter = new Emitter(entry.particle(), nextPriority++);
+        for (ItemSelector armor : entry.armors()) {
+            if (armor.item() != null) {
+                particles.put(armor.item(), emitter);
+            } else if (armor.tag() != null) {
+                taggedParticles.add(new TaggedEmitter(armor.tag(), emitter));
             }
         }
+    }
+
+    @Nullable
+    private ParticleWithVelocity findParticle(ItemStack stack) {
+        Emitter result = particles.get(stack.getItem());
+        for (TaggedEmitter tagged : taggedParticles) {
+            if (stack.is(tagged.tag()) && (result == null || tagged.emitter().priority() > result.priority())) {
+                result = tagged.emitter();
+            }
+        }
+        return result == null ? null : result.particle();
     }
     
     public void spawnParticles(LivingEntity entity) {
@@ -77,15 +104,15 @@ public class EntityArmorParticleConfig extends ReloadableJsonConfig {
         
         double height = random.nextDouble();
         EquipmentSlot slot = switchEquipmentSlotFromHeight(height);
-        Item armor = entity.getItemBySlot(slot).getItem();
-        if (particles.containsKey(armor)) {
+        ParticleWithVelocity particle = findParticle(entity.getItemBySlot(slot));
+        if (particle != null) {
             double x, y, z;
             AABB aabb = entity.getBoundingBox();
             double radian = 2 * Math.PI * random.nextDouble();
             x = Mth.lerp(0.5 + 0.75 * Math.cos(radian), aabb.minX, aabb.maxX);
             y = Mth.lerp(height, aabb.minY, aabb.maxY);
             z = Mth.lerp(0.5 + 0.75 * Math.sin(radian), aabb.minZ, aabb.maxZ);
-            particles.get(armor).spawn(level, x, y, z);
+            particle.spawn(level, x, y, z);
         }
     }
     
@@ -140,11 +167,7 @@ public class EntityArmorParticleConfig extends ReloadableJsonConfig {
                 entries = newEntries;
                 resetRuntimeData();
             } else {
-                for (Entry entry : newEntries) {
-                    for (Item armor : entry.armors) {
-                        particles.put(armor, entry.particle);
-                    }
-                }
+                newEntries.forEach(this::registerEntry);
             }
             return null;
         } finally {
@@ -161,10 +184,43 @@ public class EntityArmorParticleConfig extends ReloadableJsonConfig {
         return object;
     }
     
-    private record Entry(List<Item> armors, ParticleWithVelocity particle) {
+    private record Emitter(ParticleWithVelocity particle, long priority) {}
+
+    private record TaggedEmitter(TagKey<Item> tag, Emitter emitter) {}
+
+    private record ItemSelector(@Nullable Item item, @Nullable TagKey<Item> tag) {
+        private static final Codec<ItemSelector> CODEC = Codec.STRING.comapFlatMap(ItemSelector::parse, ItemSelector::encode);
+
+        private static DataResult<ItemSelector> parse(String value) {
+            boolean isTag = value.startsWith("#");
+            String idString = isTag ? value.substring(1) : value;
+            ResourceLocation id = ResourceLocation.tryParse(idString);
+            if (id == null) {
+                return DataResult.error(() -> "Invalid item selector '" + value + "'");
+            }
+            if (isTag) {
+                return DataResult.success(new ItemSelector(null, TagKey.create(Registries.ITEM, id)));
+            }
+            return BuiltInRegistries.ITEM.getOptional(id)
+                .map(item -> DataResult.success(new ItemSelector(item, null)))
+                .orElseGet(() -> DataResult.error(() -> "Unknown item '" + id + "'"));
+        }
+
+        private static String encode(ItemSelector selector) {
+            return selector.tag() != null
+                ? "#" + selector.tag().location()
+                : BuiltInRegistries.ITEM.getKey(selector.item()).toString();
+        }
+
+        private static ItemSelector of(Item item) {
+            return new ItemSelector(item, null);
+        }
+    }
+
+    private record Entry(List<ItemSelector> armors, ParticleWithVelocity particle) {
     
         private static final Codec<Entry> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            VisualityCodecs.compressedListOf(BuiltInRegistries.ITEM.byNameCodec()).fieldOf("armor")
+            VisualityCodecs.compressedListOf(ItemSelector.CODEC).fieldOf("armor")
                 .forGetter(Entry::armors),
             ParticleWithVelocity.CODEC.fieldOf("particle")
                 .forGetter(Entry::particle)
@@ -173,7 +229,11 @@ public class EntityArmorParticleConfig extends ReloadableJsonConfig {
         private static final Codec<List<Entry>> LIST_CODEC = CODEC.listOf();
     
         private static Entry of(ParticleOptions particle, Item... armors) {
-            return new Entry(List.of(armors), ParticleWithVelocity.ofZeroVelocity(particle));
+            List<ItemSelector> selectors = new ArrayList<>(armors.length);
+            for (Item armor : armors) {
+                selectors.add(ItemSelector.of(armor));
+            }
+            return new Entry(selectors, ParticleWithVelocity.ofZeroVelocity(particle));
         }
         
     }
