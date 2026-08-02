@@ -42,6 +42,12 @@ public class EntityArmorParticleConfig extends ReloadableJsonConfig {
     public EntityArmorParticleConfig() {
         super(Visuality.location("particle_emitters/entity_armor"));
         this.entries = createDefaultEntries();
+        resetRuntimeData();
+    }
+
+    @Override
+    protected void resetRuntimeData() {
+        particles.clear();
         for (Entry entry : entries) {
             for (Item armor : entry.armors) {
                 particles.put(armor, entry.particle);
@@ -132,11 +138,12 @@ public class EntityArmorParticleConfig extends ReloadableJsonConfig {
                 enabled = newEnabled;
                 interval = newInterval;
                 entries = newEntries;
-                particles.clear();
-            }
-            for (Entry entry : newEntries) {
-                for (Item armor : entry.armors) {
-                    particles.put(armor, entry.particle);
+                resetRuntimeData();
+            } else {
+                for (Entry entry : newEntries) {
+                    for (Item armor : entry.armors) {
+                        particles.put(armor, entry.particle);
+                    }
                 }
             }
             return null;

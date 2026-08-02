@@ -17,11 +17,3 @@
 
 * Upgrade Mod Publish Plugin to 2.1.1, add an opt-in `-PpublishDryRun=true` validation mode, and declare the project as client-only for CurseForge and Modrinth.
 * Upgrade the Gradle wrapper to 9.2.1 and the NeoGradle build plugin to 7.1.38.
-
-## Visuality: Reforged 2.1.0
-
-### Bugfix:
-* Fix a bug that in case some entities do not have attack_damage attribute and still can attack
-
-### Update
-* Add compatibility with Immersive Damage Indicators

@@ -84,6 +84,7 @@ public abstract class ReloadableJsonConfig extends SimplePreparableReloadListene
     
     protected void apply(List<Pair<String, JsonObject>> list, ResourceManager resourceManager, ProfilerFiller profiler) {
         profiler.startTick();
+        resetRuntimeData();
         JsonObject configToSave = null;
         if (configLoadFailed) {
             logger.error("Keeping invalid config at {} unchanged; fix the error above and reload resources", path);
@@ -153,6 +154,12 @@ public abstract class ReloadableJsonConfig extends SimplePreparableReloadListene
      * @return the serialized config data
      */
     protected abstract JsonObject serializeConfig();
+
+    /**
+     * Rebuild runtime lookup data from the last successfully applied local config.
+     * Resource-pack additions are reapplied after this method returns.
+     */
+    protected void resetRuntimeData() {}
     
     /**
      * Load the config JsonElement from file

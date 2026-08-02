@@ -40,6 +40,12 @@ public class EntityHitParticleConfig extends ReloadableJsonConfig {
     public EntityHitParticleConfig() {
         super(Visuality.location("particle_emitters/entity_hit"));
         this.entries = createDefaultEntries();
+        resetRuntimeData();
+    }
+
+    @Override
+    protected void resetRuntimeData() {
+        particles.clear();
         for (Entry entry : entries) {
             for (EntityType<?> type : entry.entities) {
                 particles.put(type, entry.particle);
@@ -131,11 +137,12 @@ public class EntityHitParticleConfig extends ReloadableJsonConfig {
                 minAmount = newMinAmount;
                 maxAmount = newMaxAmount;
                 entries = newEntries;
-                particles.clear();
-            }
-            for (Entry entry : newEntries) {
-                for (EntityType<?> type : entry.entities) {
-                    particles.put(type, entry.particle);
+                resetRuntimeData();
+            } else {
+                for (Entry entry : newEntries) {
+                    for (EntityType<?> type : entry.entities) {
+                        particles.put(type, entry.particle);
+                    }
                 }
             }
             return null;

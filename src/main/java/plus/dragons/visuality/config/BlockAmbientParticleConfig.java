@@ -46,6 +46,14 @@ public class BlockAmbientParticleConfig extends ReloadableJsonConfig {
     public BlockAmbientParticleConfig() {
         super(Visuality.location("particle_emitters/block_ambient"));
         this.entries = createDefaultEntries();
+        resetRuntimeData();
+    }
+
+    @Override
+    protected void resetRuntimeData() {
+        particles.clear();
+        taggedParticles.clear();
+        nextPriority = 0;
         entries.forEach(this::registerEntry);
     }
 
@@ -164,11 +172,10 @@ public class BlockAmbientParticleConfig extends ReloadableJsonConfig {
                 enabled = newEnabled;
                 interval = newInterval;
                 entries = newEntries;
-                particles.clear();
-                taggedParticles.clear();
-                nextPriority = 0;
+                resetRuntimeData();
+            } else {
+                newEntries.forEach(this::registerEntry);
             }
-            newEntries.forEach(this::registerEntry);
             return null;
         } finally {
             profiler.pop();

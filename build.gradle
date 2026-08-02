@@ -13,7 +13,7 @@ base{
 
 repositories {
     mavenLocal()
-    maven { url "https://www.cursemaven.com" }
+    maven { url = "https://www.cursemaven.com" }
 }
 
 dependencies {
@@ -150,7 +150,7 @@ publishing {
     }
     repositories {
         maven {
-            url "file://${project.projectDir}/repo"
+            url = "file://${project.projectDir}/repo"
         }
     }
 }

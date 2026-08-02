@@ -36,6 +36,12 @@ public class BlockStepParticleConfig extends ReloadableJsonConfig {
     public BlockStepParticleConfig() {
         super(Visuality.location("particle_emitters/block_step"));
         this.entries = createDefaultEntries();
+        resetRuntimeData();
+    }
+
+    @Override
+    protected void resetRuntimeData() {
+        particles.clear();
         for (Entry entry : entries) {
             for (Block block : entry.blocks) {
                 particles.put(block, entry.particle);
@@ -104,11 +110,12 @@ public class BlockStepParticleConfig extends ReloadableJsonConfig {
                 enabled = newEnabled;
                 interval = newInterval;
                 entries = newEntries;
-                particles.clear();
-            }
-            for (Entry entry : newEntries) {
-                for (Block block : entry.blocks) {
-                    particles.put(block, entry.particle);
+                resetRuntimeData();
+            } else {
+                for (Entry entry : newEntries) {
+                    for (Block block : entry.blocks) {
+                        particles.put(block, entry.particle);
+                    }
                 }
             }
             return null;
