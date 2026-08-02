@@ -156,6 +156,11 @@ tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
 }
 
+tasks.withType(Jar).configureEach {
+    from rootProject.file("LICENSE_FABRIC")
+    from rootProject.file("LICENSE_FORGE")
+}
+
 publishMods {
     file = jar.archiveFile
     changelog = project.file("CHANGELOG.md").text
