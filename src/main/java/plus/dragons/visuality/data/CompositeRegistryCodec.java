@@ -36,7 +36,7 @@ public class CompositeRegistryCodec<A> implements Codec<A> {
         if (result.error().isEmpty() || ops.compressMaps())
             return result;
         if (secondaryCodec == null) {
-            Registry<A> registry = (Registry<A>) BuiltInRegistries.REGISTRY.get(secondaryKey.location()).get().value();
+            Registry<A> registry = (Registry<A>) BuiltInRegistries.REGISTRY.get(secondaryKey.identifier()).get().value();
             if (registry == null)
                 return result;
             secondaryCodec = registry.byNameCodec();
@@ -50,7 +50,7 @@ public class CompositeRegistryCodec<A> implements Codec<A> {
         if (result.error().isEmpty() || ops.compressMaps())
             return result;
         if (secondaryCodec == null) {
-            Registry<A> registry = (Registry<A>) BuiltInRegistries.REGISTRY.get(secondaryKey.location()).get().value();
+            Registry<A> registry = (Registry<A>) BuiltInRegistries.REGISTRY.get(secondaryKey.identifier()).get().value();
             if (registry == null)
                 return result;
             secondaryCodec = registry.byNameCodec();

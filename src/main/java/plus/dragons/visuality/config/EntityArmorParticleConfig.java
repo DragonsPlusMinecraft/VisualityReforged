@@ -15,7 +15,7 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
@@ -99,7 +99,7 @@ public class EntityArmorParticleConfig extends ReloadableJsonConfig {
         if (!(renderer instanceof RenderLayerParent<?, ?> parent && parent.getModel() instanceof HumanoidModel<?>))
             return;
         
-        if (minecraft.cameraEntity == entity && minecraft.options.getCameraType().isFirstPerson())
+        if (minecraft.getCameraEntity() == entity && minecraft.options.getCameraType().isFirstPerson())
             return;
         
         double height = random.nextDouble();
@@ -194,7 +194,7 @@ public class EntityArmorParticleConfig extends ReloadableJsonConfig {
         private static DataResult<ItemSelector> parse(String value) {
             boolean isTag = value.startsWith("#");
             String idString = isTag ? value.substring(1) : value;
-            ResourceLocation id = ResourceLocation.tryParse(idString);
+            Identifier id = Identifier.tryParse(idString);
             if (id == null) {
                 return DataResult.error(() -> "Invalid item selector '" + value + "'");
             }

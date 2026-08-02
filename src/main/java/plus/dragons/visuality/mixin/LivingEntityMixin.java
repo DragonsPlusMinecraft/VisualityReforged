@@ -12,7 +12,7 @@ public class LivingEntityMixin {
     @Inject(method = "tick", at = @At("TAIL"))
     private void spawnArmorParticles(CallbackInfo ci) {
         var living = (LivingEntity) (Object) this;
-        if (living.level().isClientSide) {
+        if (living.level().isClientSide()) {
             Config.ENTITY_ARMOR_PARTICLES.spawnParticles(living);
         }
     }

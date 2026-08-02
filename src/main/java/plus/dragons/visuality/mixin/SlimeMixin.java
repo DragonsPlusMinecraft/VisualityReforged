@@ -1,6 +1,5 @@
 package plus.dragons.visuality.mixin;
 
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
@@ -15,7 +14,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import plus.dragons.visuality.config.Config;
 import plus.dragons.visuality.registry.VisualityParticles;
 
-@MethodsReturnNonnullByDefault
 @Mixin(Slime.class)
 public abstract class SlimeMixin extends Mob {
     

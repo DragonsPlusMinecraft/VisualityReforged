@@ -2,15 +2,17 @@ package plus.dragons.visuality.particle;
 
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
+import net.minecraft.util.RandomSource;
 import plus.dragons.visuality.particle.type.ColorScaleParticleType;
 
-public class SlimeParticle extends TextureSheetParticle {
+public class SlimeParticle extends SingleQuadParticle {
 
     private SlimeParticle(ClientLevel level,
                           double x, double y, double z,
                           float r, float g, float b,
-                          float scale) {
-        super(level, x, y, z, 0, 0, 0);
+                          float scale,
+                          SpriteSet sprites) {
+        super(level, x, y, z, 0, 0, 0, sprites.first());
         this.setColor(r, g, b);
         this.setAlpha(0.8F);
         this.xd *= 0.1;
@@ -35,15 +37,15 @@ public class SlimeParticle extends TextureSheetParticle {
     }
 
     @Override
-    public ParticleRenderType getRenderType() {
-        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
+    protected Layer getLayer() {
+        return Layer.TRANSLUCENT;
     }
 
     public record Provider(SpriteSet sprites) implements ParticleProvider<ColorScaleParticleType.Options> {
         
         @Override
-        public Particle createParticle(ColorScaleParticleType.Options options, ClientLevel world, double x, double y, double z, double velX, double velY, double velZ) {
-            SlimeParticle particle = new SlimeParticle(world, x, y, z, options.r, options.g, options.b, options.scale);
+        public Particle createParticle(ColorScaleParticleType.Options options, ClientLevel world, double x, double y, double z, double velX, double velY, double velZ, RandomSource random) {
+            SlimeParticle particle = new SlimeParticle(world, x, y, z, options.r, options.g, options.b, options.scale, sprites);
             particle.setSprite(sprites.get(world.random));
             return particle;
         }

@@ -9,6 +9,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.ExtraCodecs;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 
 public class ColorParticleType extends ParticleType<ColorParticleType.Options> {
@@ -60,7 +61,7 @@ public class ColorParticleType extends ParticleType<ColorParticleType.Options> {
             this.b = b;
         }
 
-        private Options(Vector3f vec) {
+        private Options(Vector3fc vec) {
             this(vec.x(), vec.y(), vec.z());
         }
 

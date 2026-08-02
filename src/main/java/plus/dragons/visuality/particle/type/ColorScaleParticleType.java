@@ -10,6 +10,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.ExtraCodecs;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 
 public class ColorScaleParticleType extends ParticleType<ColorScaleParticleType.Options> {
@@ -83,7 +84,7 @@ public class ColorScaleParticleType extends ParticleType<ColorScaleParticleType.
             this.scale = buffer.readFloat();
         }
         
-        private Options(Vector3f vec, float scale) {
+        private Options(Vector3fc vec, float scale) {
             this(vec.x(), vec.y(), vec.z(), scale);
         }
         

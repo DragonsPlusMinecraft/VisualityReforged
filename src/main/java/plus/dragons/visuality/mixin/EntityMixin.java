@@ -19,7 +19,7 @@ public class EntityMixin {
     @Inject(method = "hurtClient", at = @At("HEAD"))
     private void handleParticle(DamageSource damageSource, CallbackInfoReturnable<Boolean> cir) {
         Object entity = this;
-        if (entity instanceof LivingEntity living && living.level().isClientSide) {
+        if (entity instanceof LivingEntity living && living.level().isClientSide()) {
             double insignificantAmount = random.nextDouble() + random.nextInt(6);
             Config.ENTITY_HIT_PARTICLES.spawnParticles(living,damageSource,insignificantAmount);
         }

@@ -3,11 +3,12 @@ package plus.dragons.visuality.particle;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
 import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.util.RandomSource;
 
 public class FeatherParticle extends RisingParticle {
 
-    private FeatherParticle(ClientLevel level, double x, double y, double z, double velX, double velY, double velZ) {
-        super(level, x, y, z, velX, velY, velZ);
+    private FeatherParticle(ClientLevel level, double x, double y, double z, double velX, double velY, double velZ, SpriteSet sprites) {
+        super(level, x, y, z, velX, velY, velZ, sprites.first());
         this.scale(0.7F + (float) level.random.nextInt(6) / 10);
         this.roll = oRoll = random.nextFloat() * (float) (2 * Math.PI);
         this.yd = -0.25D;
@@ -35,15 +36,15 @@ public class FeatherParticle extends RisingParticle {
     }
 
     @Override
-    public ParticleRenderType getRenderType() {
-        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
+    protected Layer getLayer() {
+        return Layer.TRANSLUCENT;
     }
 
     public record Provider(SpriteSet sprites) implements ParticleProvider<SimpleParticleType> {
         
         @Override
-        public Particle createParticle(SimpleParticleType simpleParticleType, ClientLevel world, double x, double y, double z, double velX, double velY, double velZ) {
-            FeatherParticle particle = new FeatherParticle(world, x, y, z, velX, velY, velZ);
+        public Particle createParticle(SimpleParticleType simpleParticleType, ClientLevel world, double x, double y, double z, double velX, double velY, double velZ, RandomSource random) {
+            FeatherParticle particle = new FeatherParticle(world, x, y, z, velX, velY, velZ, sprites);
             particle.setSpriteFromAge(sprites);
             return particle;
         }

@@ -18,10 +18,10 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.animal.Chicken;
-import net.minecraft.world.entity.animal.ChickenVariants;
-import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.world.entity.projectile.ThrownTrident;
+import net.minecraft.world.entity.animal.chicken.Chicken;
+import net.minecraft.world.entity.animal.chicken.ChickenVariants;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import net.minecraft.world.entity.projectile.arrow.ThrownTrident;
 import org.jetbrains.annotations.Nullable;
 import plus.dragons.visuality.Visuality;
 import plus.dragons.visuality.data.ParticleWithVelocity;
@@ -109,7 +109,7 @@ public class EntityHitParticleConfig extends ReloadableJsonConfig {
     
     private double getAttackDamage(LivingEntity attacker) { // In case some entities do not have attack_damage attribute and still can attack
         if(attacker.getAttribute(Attributes.ATTACK_DAMAGE)!=null)
-            return attacker.getMainHandItem().getAttributeModifiers().compute(attacker.getAttributeBaseValue(Attributes.ATTACK_DAMAGE),EquipmentSlot.MAINHAND);
+            return attacker.getMainHandItem().getAttributeModifiers().compute(Attributes.ATTACK_DAMAGE, attacker.getAttributeBaseValue(Attributes.ATTACK_DAMAGE), EquipmentSlot.MAINHAND);
         else return 1;
     }
     

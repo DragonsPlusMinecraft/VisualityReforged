@@ -1,5 +1,3 @@
-modLoader="javafml"
-loaderVersion="${loader_version_range}" #mandatory
 license="${mod_license}"
 issueTrackerURL="https://github.com/DragonsPlusMinecraft/VisualityReforged/issues/"
 [[mods]]
@@ -15,7 +13,7 @@ description='''${mod_description}'''
 [[dependencies.${mod_id}]]
 modId="neoforge"
 type="required"
-versionRange="${neo_version_range}"
+versionRange="[${neo_version},)"
 ordering="NONE"
 side="BOTH"
 [[dependencies.${mod_id}]]

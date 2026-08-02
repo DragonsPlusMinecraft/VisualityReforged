@@ -7,7 +7,7 @@ import com.google.gson.JsonParseException;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
@@ -32,17 +32,17 @@ import java.util.function.Function;
  * A Json-based config which can be load from config and resource packs
  */
 public abstract class ReloadableJsonConfig extends SimplePreparableReloadListener<List<Pair<String, JsonObject>>> {
-    private static final Map<ResourceLocation, ReloadableJsonConfig> CONFIGS = new HashMap<>();
+    private static final Map<Identifier, ReloadableJsonConfig> CONFIGS = new HashMap<>();
     protected static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    protected final ResourceLocation id;
+    protected final Identifier id;
     protected final Path path;
     protected final Logger logger;
     @Nullable
     private JsonObject config;
     private boolean configLoadFailed;
     
-    protected ReloadableJsonConfig(ResourceLocation id) {
-        this.id = ResourceLocation.fromNamespaceAndPath(id.getNamespace(), id.getPath() + ".json");
+    protected ReloadableJsonConfig(Identifier id) {
+        this.id = Identifier.fromNamespaceAndPath(id.getNamespace(), id.getPath() + ".json");
         this.path = FMLPaths.CONFIGDIR.get().resolve(this.id.getNamespace()).resolve(this.id.getPath());
         this.logger = LoggerFactory.getLogger(this.getClass());
         CONFIGS.put(id, this);
@@ -60,7 +60,7 @@ public abstract class ReloadableJsonConfig extends SimplePreparableReloadListene
         try {
             for(String namespace : resourceManager.getNamespaces()) {
                 profiler.push(namespace);
-                ResourceLocation id = ResourceLocation.fromNamespaceAndPath(namespace, this.id.getPath());
+                Identifier id = Identifier.fromNamespaceAndPath(namespace, this.id.getPath());
                 for (Resource resource : resourceManager.getResourceStack(id)) {
                     profiler.push(resource.sourcePackId());
                     try {

@@ -13,7 +13,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.RandomSource;
@@ -201,7 +201,7 @@ public class BlockAmbientParticleConfig extends ReloadableJsonConfig {
         private static DataResult<BlockSelector> parse(String value) {
             boolean isTag = value.startsWith("#");
             String idString = isTag ? value.substring(1) : value;
-            ResourceLocation id = ResourceLocation.tryParse(idString);
+            Identifier id = Identifier.tryParse(idString);
             if (id == null) {
                 return DataResult.error(() -> "Invalid block selector '" + value + "'");
             }

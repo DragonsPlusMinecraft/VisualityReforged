@@ -1,21 +1,19 @@
 package plus.dragons.visuality.particle;
 
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
-import net.minecraft.util.Mth;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.client.renderer.state.QuadParticleRenderState;
+import net.minecraft.util.RandomSource;
 import org.joml.Quaternionf;
-import org.joml.Vector3f;
 import plus.dragons.visuality.particle.type.ColorParticleType;
 
-public class WaterCircleParticle extends TextureSheetParticle {
+public class WaterCircleParticle extends SingleQuadParticle {
     private final SpriteSet sprites;
     private static final Quaternionf QUATERNION = new Quaternionf(0F, -0.7F, 0.7F, 0F);
 
     private WaterCircleParticle(ClientLevel level, double x, double y, double z, float r, float g, float b, SpriteSet sprites) {
-        super(level, x, y, z, 0, 0, 0);
+        super(level, x, y, z, 0, 0, 0, sprites.first());
         this.lifetime = 5 + this.random.nextInt(3);
         this.setParticleSpeed(0D, 0D, 0D);
         if (r > 0 && g > 0 && b > 0) {
@@ -47,42 +45,19 @@ public class WaterCircleParticle extends TextureSheetParticle {
     }
 
     @Override
-    public void render(VertexConsumer buffer, Camera camera, float ticks) {
-        Vec3 vec3 = camera.getPosition();
-        float x = (float) (Mth.lerp(ticks, this.xo, this.x) - vec3.x());
-        float y = (float) (Mth.lerp(ticks, this.yo, this.y) - vec3.y());
-        float z = (float) (Mth.lerp(ticks, this.zo, this.z) - vec3.z());
-
-        Vector3f[] vector3fs = new Vector3f[]{new Vector3f(-1.0F, -1.0F, 0.0F), new Vector3f(-1.0F, 1.0F, 0.0F), new Vector3f(1.0F, 1.0F, 0.0F), new Vector3f(1.0F, -1.0F, 0.0F)};
-        float f4 = this.getQuadSize(ticks);
-
-        for (int i = 0; i < 4; ++i) {
-            Vector3f vector3f = vector3fs[i];
-            vector3f.rotate(QUATERNION);
-            vector3f.mul(f4);
-            vector3f.add(x, y, z);
-        }
-
-        float f7 = this.getU0();
-        float f8 = this.getU1();
-        float f5 = this.getV0();
-        float f6 = this.getV1();
-        int j = this.getLightColor(ticks);
-        buffer.addVertex(vector3fs[0].x(), vector3fs[0].y(), vector3fs[0].z()).setUv(f8, f6).setColor(this.rCol, this.gCol, this.bCol, this.alpha).setLight(j);
-        buffer.addVertex(vector3fs[1].x(), vector3fs[1].y(), vector3fs[1].z()).setUv(f8, f5).setColor(this.rCol, this.gCol, this.bCol, this.alpha).setLight(j);
-        buffer.addVertex(vector3fs[2].x(), vector3fs[2].y(), vector3fs[2].z()).setUv(f7, f5).setColor(this.rCol, this.gCol, this.bCol, this.alpha).setLight(j);
-        buffer.addVertex(vector3fs[3].x(), vector3fs[3].y(), vector3fs[3].z()).setUv(f7, f6).setColor(this.rCol, this.gCol, this.bCol, this.alpha).setLight(j);
+    public void extract(QuadParticleRenderState reusedState, Camera camera, float partialTick) {
+        this.extractRotatedQuad(reusedState, camera, QUATERNION, partialTick);
     }
 
     @Override
-    public ParticleRenderType getRenderType() {
-        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
+    protected Layer getLayer() {
+        return Layer.TRANSLUCENT;
     }
 
     public record Provider(SpriteSet sprites) implements ParticleProvider<ColorParticleType.Options> {
         
         @Override
-        public Particle createParticle(ColorParticleType.Options options, ClientLevel world, double x, double y, double z, double velX, double velY, double velZ) {
+        public Particle createParticle(ColorParticleType.Options options, ClientLevel world, double x, double y, double z, double velX, double velY, double velZ, RandomSource random) {
             return new WaterCircleParticle(world, x, y, z, options.r, options.g, options.b, sprites);
         }
         

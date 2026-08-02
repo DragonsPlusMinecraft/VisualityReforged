@@ -1,6 +1,6 @@
 package plus.dragons.visuality;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -31,8 +31,8 @@ public class Visuality {
         container.registerConfig(ModConfig.Type.CLIENT, Config.SPEC, ID + "/config.toml");
     }
     
-    public static ResourceLocation location(String path) {
-        return ResourceLocation.fromNamespaceAndPath(ID, path);
+    public static Identifier location(String path) {
+        return Identifier.fromNamespaceAndPath(ID, path);
     }
 
 }
