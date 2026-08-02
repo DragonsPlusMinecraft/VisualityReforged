@@ -66,44 +66,55 @@ public class BlockStepParticleConfig extends ReloadableJsonConfig {
     @Nullable
     protected JsonObject apply(JsonObject input, boolean config, String source, ProfilerFiller profiler) {
         profiler.push(source);
-        if (config) {
-            enabled = GsonHelper.getAsBoolean(input, "enabled", true);
-            interval = GsonHelper.getAsInt(input, "interval", 10);
-        }
-        JsonArray array = GsonHelper.getAsJsonArray(input, "entries", null);
-        if (array == null) {
-            logger.warn("Failed to load options entries from {}: Missing JsonArray 'entries'.", source);
+        try {
+            boolean newEnabled = enabled;
+            int newInterval = interval;
+            if (config) {
+                newEnabled = GsonHelper.getAsBoolean(input, "enabled", true);
+                newInterval = GsonHelper.getAsInt(input, "interval", 10);
+                if (newInterval < 1) {
+                    throw new IllegalArgumentException("'interval' must be at least 1");
+                }
+            }
+            JsonArray array = GsonHelper.getAsJsonArray(input, "entries", null);
+            if (array == null) {
+                logger.warn("Failed to load options entries from {}: Missing JsonArray 'entries'.", source);
+                return config ? serializeConfig() : null;
+            }
+            boolean invalid = false;
+            List<Entry> newEntries = new ArrayList<>();
+            List<JsonElement> elements = Lists.newArrayList(array);
+            for (JsonElement element : elements) {
+                var data = Entry.CODEC.parse(JsonOps.INSTANCE, element);
+                if (data.error().isPresent()) {
+                    invalid = config;
+                    logger.warn("Error parsing {} from {}: {}", id, source, data.error().get().message());
+                    continue;
+                }
+                if (data.result().isPresent())
+                    newEntries.add(data.result().get());
+                else {
+                    invalid = config;
+                    logger.warn("Error parsing {} from {}: Missing decode result", id, source);
+                }
+            }
+            if (invalid)
+                return serializeConfig();
+            if (config) {
+                enabled = newEnabled;
+                interval = newInterval;
+                entries = newEntries;
+                particles.clear();
+            }
+            for (Entry entry : newEntries) {
+                for (Block block : entry.blocks) {
+                    particles.put(block, entry.particle);
+                }
+            }
+            return null;
+        } finally {
             profiler.pop();
-            return config ? serializeConfig() : null;
         }
-        boolean save = false;
-        List<Entry> newEntries = new ArrayList<>();
-        List<JsonElement> elements = Lists.newArrayList(array);
-        for (JsonElement element : elements) {
-            var data = Entry.CODEC.parse(JsonOps.INSTANCE, element);
-            if (data.error().isPresent()) {
-                save = config;
-                logger.warn("Error parsing {} from {}: {}", id, source, data.error().get().message());
-                continue;
-            }
-            if (data.result().isPresent())
-                newEntries.add(data.result().get());
-            else {
-                save = config;
-                logger.warn("Error parsing {} from {}: Missing decode result", id, source);
-            }
-        }
-        if (config) {
-            entries = newEntries;
-            particles.clear();
-        }
-        for (Entry entry : newEntries) {
-            for (Block block : entry.blocks) {
-                particles.put(block, entry.particle);
-            }
-        }
-        profiler.pop();
-        return save ? serializeConfig() : null;
     }
     
     @Override

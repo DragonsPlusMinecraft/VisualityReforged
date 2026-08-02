@@ -15,7 +15,13 @@ Expect particles collection expanding with the mod updates!
 
 ## Configuration
 
-You can configure the mod by editing visuality-client.toml in the config folder of your Minecraft directory or use [Configured](https://www.curseforge.com/minecraft/mc-mods/configured) for in-game config UI.
+The general client options are stored in `config/visuality/config.toml`. Particle emitters are configured by the JSON files under `config/visuality/particle_emitters/`.
+
+Block ambient emitter entries accept either a block ID such as `minecraft:amethyst_cluster` or a block tag prefixed with `#`, such as `#c:ores/gold`.
+
+## Supported versions
+
+Active maintenance is limited to the NeoForge `1.21.1` and `1.21.8` branches. All other Minecraft-version branches are end-of-life and will not receive fixes or releases.
 
 ## Feedback
 
