@@ -1,9 +1,5 @@
 ## Visuality: Reforged 3.0.0
 
-### Support policy
-
-* Active maintenance is now limited to Minecraft 1.21.1 and 1.21.8 on NeoForge. All other branches are end-of-life.
-
 ### Added
 
 * Add a configurable RGB color for slime blob particles under `slime.color` in the client config.
