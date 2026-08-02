@@ -12,23 +12,27 @@ pluginManagement {
     repositories {
         gradlePluginPortal()
         maven {
-            name 'Forge Maven'
-            url 'https://maven.minecraftforge.net'
+            name = 'Forge Maven'
+            url = 'https://maven.minecraftforge.net'
         }
         maven {
-            name 'SpongePowered Maven'
-            url 'https://repo.spongepowered.org/repository/maven-public'
+            name = 'SpongePowered Maven'
+            url = 'https://repo.spongepowered.org/repository/maven-public'
         }
         maven {
-            name 'ParchmentMC Maven'
-            url 'https://maven.parchmentmc.org'
+            name = 'ParchmentMC Maven'
+            url = 'https://maven.parchmentmc.org'
         }
         maven {
-            name 'Gradle Plugin Maven'
-            url 'https://plugins.gradle.org/m2'
+            name = 'Gradle Plugin Maven'
+            url = 'https://plugins.gradle.org/m2'
         }
         mavenCentral()
     }
+}
+
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
 }
 
 rootProject.name = "visuality-forge"

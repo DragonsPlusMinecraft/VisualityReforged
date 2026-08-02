@@ -15,10 +15,16 @@ Expect particles collection expanding with the mod updates!
 
 ## Configuration
 
-You can configure the mod by editing visuality-client.toml in the config folder of your Minecraft directory or use [Configured](https://www.curseforge.com/minecraft/mc-mods/configured) for in-game config UI.
+General options are stored in `config/visuality/config.toml`. Particle emitters are configured through the JSON files in `config/visuality/particle_emitters/`.
+
+Block ambient entries accept either a concrete block ID such as `minecraft:gold_ore` or a block tag such as `#forge:ores/gold`.
+
+## Support policy
+
+Minecraft 1.20.1 Forge 2.2.0 is a one-time compatibility release for the large existing user base. This branch remains end-of-life; active maintenance is limited to Minecraft 1.21.1 and 1.21.8 on NeoForge.
 
 ## Feedback
 
 All feature requests should go to [Visuality](https://github.com/PinkGoosik/visuality).
 
-All bug reports on Forge should go to Visuality: Reforged.
+Bug reports for actively maintained versions should go to [Visuality: Reforged](https://github.com/DragonsPlusMinecraft/VisualityReforged/issues).

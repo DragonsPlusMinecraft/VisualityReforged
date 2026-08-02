@@ -1,14 +1,14 @@
 modLoader="javafml"
-loaderVersion="[46,)"
+loaderVersion="[47,)"
 license="MIT"
-issueTrackerURL="https://github.com/ChannelingMC/visuality-forge/issues/"
+issueTrackerURL="https://github.com/DragonsPlusMinecraft/VisualityReforged/issues/"
 
 [[mods]]
     modId="visuality"
     version="${version}"
     displayName="Visuality: Reforged"
     #updateJSONURL="https://change.me.example.invalid/updates.json"
-    displayURL="https://www.curseforge.com/minecraft/mc-mods/visuality-forge"
+    displayURL="https://www.curseforge.com/minecraft/mc-mods/visuality-reforged"
     logoFile="pack.png"
     credits="Thanks PinkGoosik for the original work!"
     authors="LimonBlaze"
@@ -17,13 +17,13 @@ issueTrackerURL="https://github.com/ChannelingMC/visuality-forge/issues/"
 [[dependencies.visuality]]
     modId="forge"
     mandatory=true
-    versionRange="[46,)"
+    versionRange="[47,)"
     ordering="NONE"
     side="BOTH"
 
 [[dependencies.visuality]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.20,1.22)"
+    versionRange="[1.20.1,1.20.2)"
     ordering="NONE"
     side="BOTH"

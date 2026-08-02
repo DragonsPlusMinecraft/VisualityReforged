@@ -4,9 +4,12 @@ plugins {
     id 'org.spongepowered.mixin'
     id 'org.parchmentmc.librarian.forgegradle'
     id 'maven-publish'
+    id 'me.modmuss50.mod-publish-plugin' version '2.1.1'
 }
 
-archivesBaseName = project.mod_name
+base {
+    archivesName = project.mod_name
+}
 version = project.mod_version
 group = project.maven_group
 
@@ -80,8 +83,8 @@ minecraft {
 
 repositories {
     maven {
-        name "JitPack"
-        url 'https://jitpack.io'
+        name = "JitPack"
+        url = 'https://jitpack.io'
     }
 }
 
@@ -140,12 +143,12 @@ void processJar(Jar jarTask) {
 }
 
 jar {
-    classifier 'slim'
+    archiveClassifier = 'slim'
     finalizedBy 'reobfJar'
 }
 
 tasks.jarJar {
-    classifier ""
+    archiveClassifier = ""
     finalizedBy reobf.maybeCreate('jarJar')
 }
 
@@ -155,12 +158,38 @@ processJar(tasks.jarJar)
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            artifactId = archivesBaseName
+            artifactId = base.archivesName.get()
             fg.component(it)
         }
     }
     repositories {
         mavenLocal()
+    }
+}
+
+publishMods {
+    file = tasks.jarJar.archiveFile
+    changelog = project.file("CHANGELOG.md").text
+    version = mod_version
+    type = STABLE
+    displayName = "[Forge]Visuality: Reforged ${mod_version} for ${minecraft_version}"
+    modLoaders.add("forge")
+    dryRun = providers.gradleProperty("publishDryRun").map { it.toBoolean() }.orElse(false)
+
+    curseforge {
+        projectId = "704256"
+        accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
+        minecraftVersions.add(minecraft_version)
+        javaVersions.add(JavaVersion.VERSION_17)
+        client = true
+        server = false
+    }
+
+    modrinth {
+        projectId = "z13R7Et1"
+        accessToken = providers.environmentVariable("MODRINTH_TOKEN")
+        minecraftVersions.add(minecraft_version)
+        environment = CLIENT_ONLY
     }
 }
 

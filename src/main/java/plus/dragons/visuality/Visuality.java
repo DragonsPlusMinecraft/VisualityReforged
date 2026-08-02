@@ -3,7 +3,6 @@ package plus.dragons.visuality;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -19,19 +18,19 @@ public class Visuality {
     public static final String ID = "visuality";
     private static final Logger LOGGER = LoggerFactory.getLogger("Visuality");
     
-    public Visuality() {
+    public Visuality(FMLJavaModLoadingContext context) {
         if (FMLLoader.getDist() == Dist.CLIENT) {
-            this.onInitialize();
+            this.onInitialize(context);
             LOGGER.info("Visuality has initialized, have fun with more particles!");
         } else {
             LOGGER.warn("Visuality is installed on a dedicated server, skip loading...");
         }
     }
     
-    public void onInitialize() {
-        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, Config.SPEC, ID + "/config.toml");
+    public void onInitialize(FMLJavaModLoadingContext context) {
+        context.registerConfig(ModConfig.Type.CLIENT, Config.SPEC, ID + "/config.toml");
         
-        IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
+        IEventBus modBus = context.getModEventBus();
         VisualityRegistries.Registers.register(modBus);
         VisualityParticles.register();
         
@@ -40,7 +39,7 @@ public class Visuality {
     }
     
     public static ResourceLocation location(String path) {
-        return new ResourceLocation(ID, path);
+        return ResourceLocation.fromNamespaceAndPath(ID, path);
     }
 
 }

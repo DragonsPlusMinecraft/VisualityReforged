@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A Json-based config which can be load from config and resource packs
+ * A JSON-based config which can be loaded from the config directory and resource packs.
  */
 public abstract class ReloadableJsonConfig extends SimplePreparableReloadListener<List<Pair<String, JsonObject>>> {
     private static final Map<ResourceLocation, ReloadableJsonConfig> CONFIGS = new HashMap<>();
@@ -39,116 +39,145 @@ public abstract class ReloadableJsonConfig extends SimplePreparableReloadListene
     protected final Logger logger;
     @Nullable
     private JsonObject config;
-    
+    private boolean configLoadFailed;
+
     protected ReloadableJsonConfig(ResourceLocation id) {
-        this.id = new ResourceLocation(id.getNamespace(), id.getPath() + ".json");
+        this.id = ResourceLocation.fromNamespaceAndPath(id.getNamespace(), id.getPath() + ".json");
         this.path = FMLPaths.CONFIGDIR.get().resolve(this.id.getNamespace()).resolve(this.id.getPath());
         this.logger = LoggerFactory.getLogger(this.getClass());
         CONFIGS.put(id, this);
     }
-    
+
+    @Override
     protected List<Pair<String, JsonObject>> prepare(ResourceManager resourceManager, ProfilerFiller profiler) {
         profiler.startTick();
         profiler.push("config");
         profiler.push("parse");
+        configLoadFailed = false;
         config = loadConfig();
         profiler.pop();
         profiler.pop();
+
         List<Pair<String, JsonObject>> list = new ArrayList<>();
         try {
-            for(String namespace : resourceManager.getNamespaces()) {
+            for (String namespace : resourceManager.getNamespaces()) {
                 profiler.push(namespace);
-                ResourceLocation id = new ResourceLocation(namespace, this.id.getPath());
-                for (Resource resource : resourceManager.getResourceStack(id)) {
+                ResourceLocation resourceId = ResourceLocation.fromNamespaceAndPath(namespace, this.id.getPath());
+                for (Resource resource : resourceManager.getResourceStack(resourceId)) {
                     profiler.push(resource.sourcePackId());
-                    try {
-                        Reader reader = resource.openAsReader();
+                    try (Reader reader = resource.openAsReader()) {
                         profiler.push("parse");
-                        JsonObject object = GsonHelper.fromJson(GSON, reader, JsonObject.class);
-                        profiler.pop();
-                        list.add(Pair.of(resource.sourcePackId() + '#' + id, object));
+                        try {
+                            JsonObject object = GsonHelper.fromJson(GSON, reader, JsonObject.class);
+                            list.add(Pair.of(resource.sourcePackId() + '#' + resourceId, object));
+                        } finally {
+                            profiler.pop();
+                        }
                     } catch (RuntimeException exception) {
-                        logger.warn("Invalid {} in resourcepack: '{}'", id, resource.sourcePackId(), exception);
+                        logger.warn("Invalid {} in resource pack '{}'", resourceId, resource.sourcePackId(), exception);
                     }
                     profiler.pop();
                 }
                 profiler.pop();
             }
-        } catch (IOException ignored) {
+        } catch (IOException exception) {
+            logger.warn("Failed to enumerate resource-pack configs for {}", id, exception);
         }
         profiler.endTick();
         return list;
     }
-    
+
+    @Override
     protected void apply(List<Pair<String, JsonObject>> list, ResourceManager resourceManager, ProfilerFiller profiler) {
         profiler.startTick();
-        config = config == null ? serializeConfig() : apply(config, true, path.toString(), profiler);
-        for (var entry : list) {
+        resetRuntimeData();
+        JsonObject configToSave = null;
+
+        if (configLoadFailed) {
+            logger.error("Keeping invalid config at {} unchanged; fix the error above and reload resources", path);
+        } else if (config == null) {
+            configToSave = serializeConfig();
+        } else {
+            try {
+                JsonObject invalidConfig = apply(config, true, path.toString(), profiler);
+                if (invalidConfig != null) {
+                    logger.error("Keeping invalid config at {} unchanged; fix the reported entries and reload resources", path);
+                }
+            } catch (RuntimeException exception) {
+                logger.error("Failed to apply config from {}; the file has been left unchanged", path, exception);
+            }
+        }
+
+        for (Pair<String, JsonObject> entry : list) {
             String name = entry.getFirst();
             JsonObject object = entry.getSecond();
-            if (!CraftingHelper.processConditions(object, "conditions", ICondition.IContext.EMPTY)) {
-                logger.debug("Skipping loading {} from {} as it's conditions were not met", id, name);
-                continue;
+            try {
+                if (object.has("conditions") &&
+                    !CraftingHelper.processConditions(object, "conditions", ICondition.IContext.EMPTY)) {
+                    logger.debug("Skipping loading {} from {} as its conditions were not met", id, name);
+                    continue;
+                }
+                apply(object, false, name, profiler);
+            } catch (RuntimeException exception) {
+                logger.error("Failed to apply {} from a resource pack; skipping it", name, exception);
             }
-            apply(object, false, name, profiler);
         }
-        if (config != null) {
+
+        if (configToSave != null) {
             profiler.push("save");
-            saveConfig(config);
-            //config = null;
+            saveConfig(configToSave);
             profiler.pop();
         }
-        profiler.pop();
+        config = null;
         profiler.endTick();
     }
-    
+
     /**
-     * Deserialize the config JsonObject and refresh the config data
-     * @param input the JsonObject read from file in {@link ReloadableJsonConfig#loadConfig()}
-     * @param config if the JsonObject is from config
-     * @param source a String to identify the source of the JsonObject
-     * @return the corrected JsonElement to save to file, or null if it doesn't need correction
+     * Deserialize a config object and refresh its runtime data.
+     *
+     * @return a non-null value if a local config is invalid, otherwise {@code null}
      */
     @Nullable
     protected abstract JsonObject apply(JsonObject input, boolean config, String source, ProfilerFiller profiler);
-    
+
     /**
-     * Serialize the config data into JsonElement for saving
-     * @return the serialized config data
+     * Serialize the last successfully applied local configuration.
      */
     protected abstract JsonObject serializeConfig();
-    
+
     /**
-     * Load the config JsonElement from file
-     * @return the raw JsonElement, or null if failed to load
+     * Rebuild runtime lookup data from the last successfully applied local config.
+     * Resource-pack additions are reapplied after this method returns.
      */
+    protected void resetRuntimeData() {}
+
     @Nullable
     protected JsonObject loadConfig() {
         if (!Files.exists(path)) {
             return null;
         }
         try (BufferedReader reader = Files.newBufferedReader(path)) {
-            return GSON.fromJson(reader, JsonObject.class);
+            JsonObject result = GSON.fromJson(reader, JsonObject.class);
+            if (result == null) {
+                throw new IllegalArgumentException("Config is empty or contains JSON null");
+            }
+            return result;
         } catch (Throwable throwable) {
-            logger.warn("Failed to read config from {}", path, throwable);
+            configLoadFailed = true;
+            logger.error("Failed to read config from {}; the file will not be overwritten", path, throwable);
             return null;
         }
     }
-    
-    /**
-     * Save the config to file
-     * @param output the config JsonElement to save
-     */
+
     private void saveConfig(JsonObject output) {
         try {
             Files.createDirectories(path.getParent());
-            BufferedWriter writer = Files.newBufferedWriter(path);
-            GSON.toJson(output, writer);
-            writer.close();
+            try (BufferedWriter writer = Files.newBufferedWriter(path)) {
+                GSON.toJson(output, writer);
+            }
             logger.info("Saved config to {}", path);
         } catch (Throwable throwable) {
             logger.error("Failed to save config to {}", path, throwable);
         }
     }
-
 }

@@ -43,12 +43,18 @@ public class EntityHitParticleConfig extends ReloadableJsonConfig {
     public EntityHitParticleConfig() {
         super(Visuality.location("particle_emitters/entity_hit"));
         this.entries = createDefaultEntries();
+        resetRuntimeData();
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, true, this::spawnParticles);
+    }
+
+    @Override
+    protected void resetRuntimeData() {
+        particles.clear();
         for (Entry entry : entries) {
             for (EntityType<?> type : entry.entities) {
                 particles.put(type, entry.particle);
             }
         }
-        MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, true, this::spawnParticles);
     }
     
     public void spawnParticles(LivingAttackEvent event) {
@@ -112,45 +118,63 @@ public class EntityHitParticleConfig extends ReloadableJsonConfig {
     @Nullable
     protected JsonObject apply(JsonObject input, boolean config, String source, ProfilerFiller profiler) {
         profiler.push(source);
-        if (config) {
-            enabled = GsonHelper.getAsBoolean(input, "enabled", true);
-            minAmount = GsonHelper.getAsInt(input, "min_amount", 1);
-            maxAmount = GsonHelper.getAsInt(input, "max_amount", 20);
-        }
-        JsonArray array = GsonHelper.getAsJsonArray(input, "entries", null);
-        if (array == null) {
-            logger.warn("Failed to load options entries from {}: Missing JsonArray 'entries'.", source);
+        try {
+            boolean newEnabled = enabled;
+            int newMinAmount = minAmount;
+            int newMaxAmount = maxAmount;
+            if (config) {
+                newEnabled = GsonHelper.getAsBoolean(input, "enabled", true);
+                newMinAmount = GsonHelper.getAsInt(input, "min_amount", 1);
+                newMaxAmount = GsonHelper.getAsInt(input, "max_amount", 20);
+                if (newMinAmount < 0 || newMaxAmount < newMinAmount) {
+                    throw new IllegalArgumentException(
+                        "'min_amount' must be non-negative and no greater than 'max_amount'");
+                }
+            }
+
+            JsonArray array = GsonHelper.getAsJsonArray(input, "entries", null);
+            if (array == null) {
+                logger.warn("Failed to load options entries from {}: Missing JsonArray 'entries'.", source);
+                return config ? serializeConfig() : null;
+            }
+
+            boolean invalid = false;
+            List<Entry> newEntries = new ArrayList<>();
+            for (JsonElement element : Lists.newArrayList(array)) {
+                var data = Entry.CODEC.parse(JsonOps.INSTANCE, element);
+                if (data.error().isPresent()) {
+                    invalid = config;
+                    logger.warn("Error parsing {} from {}: {}", id, source, data.error().get().message());
+                    continue;
+                }
+                if (data.result().isPresent()) {
+                    newEntries.add(data.result().get());
+                } else {
+                    invalid = config;
+                    logger.warn("Error parsing {} from {}: Missing decode result", id, source);
+                }
+            }
+
+            if (invalid) {
+                return serializeConfig();
+            }
+            if (config) {
+                enabled = newEnabled;
+                minAmount = newMinAmount;
+                maxAmount = newMaxAmount;
+                entries = newEntries;
+                resetRuntimeData();
+            } else {
+                for (Entry entry : newEntries) {
+                    for (EntityType<?> type : entry.entities) {
+                        particles.put(type, entry.particle);
+                    }
+                }
+            }
+            return null;
+        } finally {
             profiler.pop();
-            return config ? serializeConfig() : null;
         }
-        boolean save = false;
-        List<Entry> newEntries = new ArrayList<>();
-        List<JsonElement> elements = Lists.newArrayList(array);
-        for (JsonElement element : elements) {
-            var data = Entry.CODEC.parse(JsonOps.INSTANCE, element);
-            if (data.error().isPresent()) {
-                save = config;
-                logger.warn("Error parsing {} from {}: {}", id, source, data.error().get().message());
-                continue;
-            }
-            if (data.result().isPresent())
-                newEntries.add(data.result().get());
-            else {
-                save = config;
-                logger.warn("Error parsing {} from {}: Missing decode result", id, source);
-            }
-        }
-        if (config) {
-            entries = newEntries;
-            particles.clear();
-        }
-        for (Entry entry : newEntries) {
-            for (EntityType<?> type : entry.entities) {
-                particles.put(type, entry.particle);
-            }
-        }
-        profiler.pop();
-        return save ? serializeConfig() : null;
     }
     
     @Override
