@@ -115,11 +115,11 @@ public class BlockAmbientParticleConfig extends ReloadableJsonConfig {
 
         // Configs generated before 3.0 used explicit vanilla block IDs. Promote unchanged
         // ore groups to their common tags at runtime so modded ores work without deleting configs.
-        registerLegacyCommonTag(entry, emitter, Tags.Blocks.ORES_GOLD,
+        registerLegacyCommonTag(entry, emitter, Tags.BlockItems.ORES_GOLD.block(),
             Blocks.GOLD_ORE, Blocks.DEEPSLATE_GOLD_ORE, Blocks.NETHER_GOLD_ORE);
-        registerLegacyCommonTag(entry, emitter, Tags.Blocks.ORES_DIAMOND,
+        registerLegacyCommonTag(entry, emitter, Tags.BlockItems.ORES_DIAMOND.block(),
             Blocks.DIAMOND_ORE, Blocks.DEEPSLATE_DIAMOND_ORE);
-        registerLegacyCommonTag(entry, emitter, Tags.Blocks.ORES_EMERALD,
+        registerLegacyCommonTag(entry, emitter, Tags.BlockItems.ORES_EMERALD.block(),
             Blocks.EMERALD_ORE, Blocks.DEEPSLATE_EMERALD_ORE);
     }
 
@@ -275,13 +275,13 @@ public class BlockAmbientParticleConfig extends ReloadableJsonConfig {
         List<Entry> entries = new ArrayList<>();
 
         entries.add(Entry.of(VisualityParticles.SPARKLE.get().withColor(0xFEFFBD),
-            BlockSelector.of(Tags.Blocks.ORES_GOLD)));
+            BlockSelector.of(Tags.BlockItems.ORES_GOLD.block())));
 
         entries.add(Entry.of(VisualityParticles.SPARKLE.get().withColor(0xB4FDEE),
-            BlockSelector.of(Tags.Blocks.ORES_DIAMOND)));
+            BlockSelector.of(Tags.BlockItems.ORES_DIAMOND.block())));
 
         entries.add(Entry.of(VisualityParticles.SPARKLE.get().withColor(0xD9FFEB),
-            BlockSelector.of(Tags.Blocks.ORES_EMERALD)));
+            BlockSelector.of(Tags.BlockItems.ORES_EMERALD.block())));
 
         entries.add(Entry.of(VisualityParticles.SPARKLE.get().withColor(0xFECBE6),
             BlockSelector.of(Blocks.AMETHYST_CLUSTER)));
